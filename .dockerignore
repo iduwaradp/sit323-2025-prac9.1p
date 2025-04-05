@@ -1,0 +1,5 @@
+node_modules
+npm-debug.log
+.DS_Store
+.git
+#best practice for this pone i made this file for avoid the coping unnecessary file to the docker image#
