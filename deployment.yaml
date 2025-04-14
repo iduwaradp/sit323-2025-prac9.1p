@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: online-bookstore-deployment
+  namespace: online-bookstore-s224231273
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: online-bookstore
+  template:
+    metadata:
+      labels:
+        app: online-bookstore
+    spec:
+      containers:
+        - name: online-bookstore
+          image: australia-southeast1-docker.pkg.dev/sit323-25t1-muthugala-7935cea/online-bookstore-repo/online-bookstore:v1
+          ports:
+            - containerPort: 3000

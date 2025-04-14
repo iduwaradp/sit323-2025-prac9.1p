@@ -1,46 +1,129 @@
-# SIT323-2025-Prac5D: Dockerization and Publishing to Cloud
+
+# SIT323-2025-Prac6P: Online Bookstore Deployment on GKE with Artifact Registry
 
 ## Overview
-This repository contains the Dockerized version of the Online Bookstore microservice. It demonstrates how to build, push, and run a Docker container from a private cloud registry.
+This project demonstrates deploying a React-based online bookstore application to a **Google Kubernetes Engine (GKE)** cluster using **Google Artifact Registry** for container image hosting.
 
-## Prerequisites
-- Node.js (v18 or higher)
-- Docker
-- Google Cloud SDK (`gcloud`)
-- Git
+---
 
-## Steps to Set Up the Project
+## ✅ Prerequisites
+- Google Cloud Project with billing enabled
+- GKE and Artifact Registry APIs enabled
+- Google Cloud SDK installed and authenticated
+- Docker installed
+- kubectl installed
 
-### 1. Clone the repository
-Clone the repository to your local machine:
+---
+
+## 🚀 Step-by-Step Deployment Guide
+
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/sit323-2025-prac5d.git
-2. Build the Docker image
-Navigate to the project directory and run:
+git clone https://github.com/yourusername/online-bookstore.git
+cd online-bookstore
+```
 
-bash
-Copy
-Edit
+---
+
+### 2. Build Docker Image
+```bash
 docker build -t online-bookstore .
-3. Authenticate with Google Cloud Artifact Registry
-Authenticate using gcloud:
+```
 
-bash
-Copy
-Edit
+---
+
+### 3. Push to Artifact Registry
+
+#### Authenticate Docker with Google Cloud:
+```bash
 gcloud auth configure-docker australia-southeast2-docker.pkg.dev
-4. Push the Docker image to Google Cloud
-Push the built Docker image to your Artifact Registry:
+```
 
-bash
-Copy
-Edit
-docker push australia-southeast2-docker.pkg.dev/sit323-25t1-muthugala-7935cea/online-bookstore-repo/online-bookstore:latest
-5. Run the Docker image locally
-You can run the image locally to test the service:
+#### Tag and push:
+```bash
+docker tag online-bookstore australia-southeast2-docker.pkg.dev/sit323-25t1-muthugala-7935cea/online-bookstore-repo/online-bookstore:v1
+docker push australia-southeast2-docker.pkg.dev/sit323-25t1-muthugala-7935cea/online-bookstore-repo/online-bookstore:v1
+```
 
-bash
-Copy
-Edit
-docker run -p 3000:3000 australia-southeast2-docker.pkg.dev/sit323-25t1-muthugala-7935cea/online-bookstore-repo/online-bookstore:latest
-Visit http://localhost:3000 to access the application.
+---
+
+### 4. Update Deployment File
+
+Ensure the image in `deployment.yaml` is:
+```yaml
+image: australia-southeast2-docker.pkg.dev/sit323-25t1-muthugala-7935cea/online-bookstore-repo/online-bookstore:v1
+```
+
+---
+
+### 5. Create GKE Cluster (if not created)
+Create cluster via Console or CLI:
+```bash
+gcloud container clusters create bookstore-cluster   --region australia-southeast2   --num-nodes=3
+```
+
+---
+
+### 6. Connect `kubectl` to GKE
+```bash
+gcloud container clusters get-credentials bookstore-cluster --region australia-southeast2
+```
+✔️ You should see context like:
+```
+gke_sit323-25t1-muthugala-7935cea_australia-southeast2_bookstore-cluster
+```
+
+---
+
+### 7. Create Namespace
+```bash
+kubectl create namespace online-bookstore-s224231273
+```
+*If it already exists, ignore the error.*
+
+---
+
+### 8. Apply Deployment and Service
+```bash
+kubectl apply -f deployment.yaml -n online-bookstore-s224231273
+kubectl apply -f service.yaml -n online-bookstore-s224231273
+```
+
+---
+
+### 9. Monitor Pod Status
+```bash
+kubectl get pods -n online-bookstore-s224231273
+```
+
+✔️ Look for all pods showing `Running`.  
+If any show `ImagePullBackOff`, double-check the image URL in `deployment.yaml`.
+
+---
+
+### 10. Wait for External IP
+Check service status:
+```bash
+kubectl get svc -n online-bookstore-s224231273
+```
+
+⏳ The `EXTERNAL-IP` may take a minute or two to appear.
+
+✅ Example:
+```
+NAME                       TYPE           CLUSTER-IP       EXTERNAL-IP     PORT(S)        AGE
+online-bookstore-service   LoadBalancer   34.118.225.110   34.129.55.41    80:31234/TCP   41m
+```
+
+---
+
+### 11. Access the App
+Open the external IP in your browser:
+```
+http://34.129.55.41
+```
+
+🎉 Your app is now live and running on GKE!
+
+
+
