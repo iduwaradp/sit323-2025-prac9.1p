@@ -1,20 +1,30 @@
-# Use an official Node.js image as the base image
-FROM node:18
+# Step 1: Build React frontend
+FROM node:18 AS frontend-build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY ./src ./src
+COPY ./public ./public
+RUN npm run build
 
-# Set the working directory inside the container
+# Step 2: Build backend + serve frontend
+FROM node:18
 WORKDIR /app
 
-# Copy package.json and package-lock.json first to install dependencies
-COPY package*.json ./
+# Copy backend source
+COPY server.js ./
+COPY Item.js ./
+COPY seed.js ./
 
-# Install dependencies
+# Copy backend deps
+COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the application files
-COPY . .
+# Copy React build into backend
+COPY --from=frontend-build /app/build ./build
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Expose port
+EXPOSE 5000
 
-# Command to run the application
-CMD ["npm", "start"]
+# Start backend server
+CMD ["node", "server.js"]

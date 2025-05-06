@@ -1,18 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Typography, Grid, Card, CardContent } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 function Cart() {
-  const [cart, setCart] = useState([
-    { id: 1, title: 'Book 1', price: '$10', quantity: 1 },
-    { id: 2, title: 'Book 2', price: '$15', quantity: 2 },
-  ]);
+  const { cartItems, removeFromCart } = useCart();
+  const navigate = useNavigate();
 
-  const handleRemove = (id) => {
-    setCart(cart.filter((item) => item.id !== id));
-  };
+  const total = cartItems.reduce((sum, item) => sum + Number(item.price), 0);
 
   const handleCheckout = () => {
-    // Redirect to Checkout Page (later we can integrate Stripe)
+    navigate('/checkout');
   };
 
   return (
@@ -20,15 +18,19 @@ function Cart() {
       <Typography variant="h4" gutterBottom>
         Your Cart
       </Typography>
+
       <Grid container spacing={3}>
-        {cart.map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
+        {cartItems.map((item) => (
+          <Grid item xs={12} sm={6} md={4} key={item._id}>
             <Card>
               <CardContent>
                 <Typography variant="h5">{item.title}</Typography>
-                <Typography variant="body1">{item.price}</Typography>
-                <Typography variant="body2">Quantity: {item.quantity}</Typography>
-                <Button variant="contained" color="secondary" onClick={() => handleRemove(item.id)}>
+                <Typography variant="body1">${item.price}</Typography>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => removeFromCart(item._id)}
+                >
                   Remove
                 </Button>
               </CardContent>
@@ -36,7 +38,12 @@ function Cart() {
           </Grid>
         ))}
       </Grid>
-      <Button variant="contained" color="primary" onClick={handleCheckout}>
+
+      <Typography variant="h6" sx={{ mt: 3 }}>
+        Total: ${total}
+      </Typography>
+
+      <Button variant="contained" color="primary" onClick={handleCheckout} sx={{ mt: 2 }}>
         Proceed to Checkout
       </Button>
     </div>

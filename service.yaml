@@ -4,9 +4,9 @@ metadata:
   name: online-bookstore-service
   namespace: online-bookstore-s224231273
 spec:
-  type: LoadBalancer
   selector:
     app: online-bookstore
+  type: LoadBalancer
   ports:
     - protocol: TCP
       port: 80

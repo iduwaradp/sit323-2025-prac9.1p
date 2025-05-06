@@ -15,8 +15,14 @@ function Navbar() {
         <Button color="inherit" component={Link} to="/cart">
           Cart
         </Button>
-        <Button color="inherit" component={Link} to="/admin">
-          Admin
+        <Button color="inherit" component={Link} to="/checkout">
+          Checkout
+        </Button>
+        <Button color="inherit" component={Link} to="/add-book">
+          Add Book
+        </Button>
+        <Button color="inherit" component={Link} to="/profile">
+          Profile
         </Button>
       </Toolbar>
     </AppBar>
